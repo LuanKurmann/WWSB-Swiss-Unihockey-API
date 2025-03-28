@@ -101,7 +101,7 @@ app.get('/api/games', async (req, res) => {
           }
           
           .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
           }
           
