@@ -142,7 +142,7 @@ app.get('/api/games', async (req, res) => {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 3rem;
+            gap: 8rem;
           }
           
           .team {
