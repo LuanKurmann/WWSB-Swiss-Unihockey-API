@@ -109,7 +109,7 @@ app.get('/api/games', async (req, res) => {
             color: #333;
             margin-bottom: 2rem;
             text-align: center;
-            font-size: 2.5rem;
+            font-size: 3rem;
           }
           
           .season-info {
