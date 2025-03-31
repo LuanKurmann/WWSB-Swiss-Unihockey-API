@@ -713,19 +713,57 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               padding: 1rem;
             }
             
-            .rankings-table th,
+            h1 {
+              font-size: 2rem;
+            }
+            
+            h2 {
+              font-size: 1rem;
+            }
+
+            .rankings-table {
+              display: block;
+              box-shadow: none;
+            }
+            
+            .rankings-table thead {
+              display: none;
+            }
+            
+            .rankings-table tbody {
+              display: block;
+            }
+            
+            .rankings-table tr {
+              display: block;
+              margin-bottom: 1rem;
+              border-radius: 8px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              background: white;
+            }
+            
             .rankings-table td {
-              padding: 0.75rem 0.5rem;
-              font-size: 0.9rem;
+              display: flex;
+              padding: 0.5rem 1rem;
+              border: none;
+              align-items: center;
+            }
+            
+            .rankings-table td::before {
+              content: attr(data-label);
+              font-weight: 600;
+              width: 100px;
+              min-width: 100px;
+              color: #666;
             }
             
             .team-cell {
-              gap: 0.5rem;
+              flex: 1;
             }
             
             .team-logo {
-              width: 25px;
-              height: 25px;
+              width: 24px;
+              height: 24px;
             }
           }
         </style>
@@ -758,20 +796,20 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
       
       html += `
         <tr class="${isCurrentTeam ? 'highlight' : ''}">
-          <td>${cells[0].text[0]}</td>
-          <td>
+          <td data-label="Rang">${cells[0].text[0]}</td>
+          <td data-label="Team">
             <div class="team-cell">
               <img src="${cells[1].image?.url || ''}" alt="${cells[2].text[0]}" class="team-logo">
               ${cells[2].text[0]}
             </div>
           </td>
-          <td>${cells[3].text[0]}</td>
-          <td>${cells[5].text[0]}</td>
-          <td>${cells[6].text[0]}</td>
-          <td>${cells[7].text[0]}</td>
-          <td>${cells[8].text[0]}</td>
-          <td>${cells[9].text[0]}</td>
-          <td>${cells[11].text[0]}</td>
+          <td data-label="Spiele">${cells[3].text[0]}</td>
+          <td data-label="Siege">${cells[5].text[0]}</td>
+          <td data-label="Unent.">${cells[6].text[0]}</td>
+          <td data-label="Nied.">${cells[7].text[0]}</td>
+          <td data-label="Tore">${cells[8].text[0]}</td>
+          <td data-label="TD">${cells[9].text[0]}</td>
+          <td data-label="Punkte">${cells[11].text[0]}</td>
         </tr>
       `;
     }
