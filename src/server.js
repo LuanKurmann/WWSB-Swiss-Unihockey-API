@@ -76,7 +76,7 @@ app.get('/api/games', async (req, res) => {
       const dateA = parseSwissDate(a.date);
       const dateB = parseSwissDate(b.date);
       return dateB - dateA; // Sort descending (newest first)
-    }).slice(0, 10); // Only take the top 5 games
+    }).slice(0, 7); // Only take the top 7 games
     
     // Create modern HTML layout
     let html = `
