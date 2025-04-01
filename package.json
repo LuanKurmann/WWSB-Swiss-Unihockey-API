@@ -1,14 +1,13 @@
 {
   "name": "express-api-server",
   "version": "1.0.0",
-  "description": "A simple Express.js API server",
-  "main": "src/server.js",
+  "description": "Swiss Unihockey API Server",
   "type": "module",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.18.2"
   }
 }
