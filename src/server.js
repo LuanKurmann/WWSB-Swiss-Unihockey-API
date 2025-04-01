@@ -76,7 +76,7 @@ app.get('/api/games', async (req, res) => {
       const dateA = parseSwissDate(a.date);
       const dateB = parseSwissDate(b.date);
       return dateB - dateA; // Sort descending (newest first)
-    }).slice(0, 5); // Only take the top 5 games
+    }).slice(0, 10); // Only take the top 5 games
     
     // Create modern HTML layout
     let html = `
@@ -103,20 +103,6 @@ app.get('/api/games', async (req, res) => {
           .container {
             max-width: 1200px;
             margin: 0 auto;
-          }
-          
-          h1 {
-            color: #333;
-            margin-bottom: 2rem;
-            text-align: center;
-            font-size: 3rem;
-          }
-          
-          .season-info {
-            text-align: center;
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
           }
           
           .games-list {
@@ -228,33 +214,75 @@ app.get('/api/games', async (req, res) => {
           
           @media (max-width: 768px) {
             body {
-              padding: 1rem;
+              padding: 0.5rem;
+            }
+            
+            .container {
+              padding: 0;
+            }
+            
+            .games-list {
+              gap: 0.5rem;
+            }
+            
+            .game-card {
+              padding: 0.75rem;
+              border-radius: 8px;
             }
             
             .teams {
-              gap: 1.5rem;
+              gap: 1rem;
+            }
+            
+            .team {
+              flex: 0 1 auto;
             }
             
             .team-logo {
-              width: 60px;
-              height: 60px;
+              width: 40px;
+              height: 40px;
             }
             
             .team-name {
-              font-size: 0.9rem;
+              font-size: 0.8rem;
+              max-width: 80px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            
+            .vs {
+              display: none;
+            }
+            
+            .result {
+              font-size: 1.2rem;
             }
             
             .game-info {
-              gap: 1rem;
-              font-size: 0.85rem;
+              margin-top: 0.75rem;
+              padding-top: 0.75rem;
+              gap: 0.75rem;
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+              grid-gap: 0.5rem;
+            }
+            
+            .info-item {
+              font-size: 0.8rem;
+              text-align: center;
+            }
+            
+            .info-item i {
+              font-size: 0.9rem;
+              display: block;
+              margin-bottom: 0.2rem;
             }
           }
         </style>
       </head>
       <body>
         <div class="container">
-          <h1>Spielübersicht</h1>
-          <div class="season-info">Season ${season}/${season + 1}</div>
           <div class="games-list">
     `;
     
@@ -384,20 +412,6 @@ app.get('/api/team-games/:teamId', async (req, res) => {
             margin: 0 auto;
           }
           
-          h1 {
-            color: #333;
-            margin-bottom: 2rem;
-            text-align: center;
-            font-size: 3rem;
-          }
-          
-          .season-info {
-            text-align: center;
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.2rem;
-          }
-          
           .games-list {
             display: flex;
             flex-direction: column;
@@ -507,33 +521,75 @@ app.get('/api/team-games/:teamId', async (req, res) => {
           
           @media (max-width: 768px) {
             body {
-              padding: 1rem;
+              padding: 0.5rem;
+            }
+            
+            .container {
+              padding: 0;
+            }
+            
+            .games-list {
+              gap: 0.5rem;
+            }
+            
+            .game-card {
+              padding: 0.75rem;
+              border-radius: 8px;
             }
             
             .teams {
-              gap: 1.5rem;
+              gap: 1rem;
+            }
+            
+            .team {
+              flex: 0 1 auto;
             }
             
             .team-logo {
-              width: 60px;
-              height: 60px;
+              width: 40px;
+              height: 40px;
             }
             
             .team-name {
-              font-size: 0.9rem;
+              font-size: 0.8rem;
+              max-width: 80px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            
+            .vs {
+              display: none;
+            }
+            
+            .result {
+              font-size: 1.2rem;
             }
             
             .game-info {
-              gap: 1rem;
-              font-size: 0.85rem;
+              margin-top: 0.75rem;
+              padding-top: 0.75rem;
+              gap: 0.75rem;
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+              grid-gap: 0.5rem;
+            }
+            
+            .info-item {
+              font-size: 0.8rem;
+              text-align: center;
+            }
+            
+            .info-item i {
+              font-size: 0.9rem;
+              display: block;
+              margin-bottom: 0.2rem;
             }
           }
         </style>
       </head>
       <body>
         <div class="container">
-          <h1>Team Spielübersicht</h1>
-          <div class="season-info">Season ${season}/${season + 1}</div>
           <div class="games-list">
     `;
     
@@ -641,23 +697,6 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
             margin: 0 auto;
           }
           
-          h1, h2 {
-            color: #333;
-            margin-bottom: 1rem;
-            text-align: center;
-          }
-          
-          h1 {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-          }
-          
-          h2 {
-            color: #666;
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-          }
-          
           .rankings-table {
             width: 100%;
             border-collapse: collapse;
@@ -710,20 +749,17 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
           
           @media (max-width: 768px) {
             body {
-              padding: 1rem;
+              padding: 0.5rem;
             }
             
-            h1 {
-              font-size: 2rem;
-            }
-            
-            h2 {
-              font-size: 1rem;
+            .container {
+              padding: 0;
             }
 
             .rankings-table {
               display: block;
               box-shadow: none;
+              background: transparent;
             }
             
             .rankings-table thead {
@@ -735,43 +771,83 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
             }
             
             .rankings-table tr {
-              display: block;
-              margin-bottom: 1rem;
+              display: grid;
+              grid-template-columns: auto 1fr auto;
+              grid-template-areas: 
+                "rank team points"
+                "stats stats stats";
+              gap: 0.5rem;
+              margin-bottom: 0.5rem;
+              padding: 0.75rem;
               border-radius: 8px;
-              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
               background: white;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
             
             .rankings-table td {
-              display: flex;
-              padding: 0.5rem 1rem;
+              display: block;
+              padding: 0;
               border: none;
+            }
+            
+            .rankings-table td[data-label="Rang"] {
+              grid-area: rank;
+              font-size: 1.2rem;
+              font-weight: bold;
+            }
+            
+            .rankings-table td[data-label="Team"] {
+              grid-area: team;
+            }
+            
+            .rankings-table td[data-label="Punkte"] {
+              grid-area: points;
+              font-size: 1.2rem;
+              font-weight: bold;
+            }
+            
+            .rankings-table td[data-label="Spiele"],
+            .rankings-table td[data-label="Siege"],
+            .rankings-table td[data-label="Unent."],
+            .rankings-table td[data-label="Nied."],
+            .rankings-table td[data-label="Tore"],
+            .rankings-table td[data-label="TD"] {
+              grid-area: stats;
+              display: inline-flex;
               align-items: center;
+              font-size: 0.75rem;
+              margin-right: 0.5rem;
+              background: #f8f9fa;
+              padding: 0.25rem 0.5rem;
+              border-radius: 4px;
+              white-space: nowrap;
             }
             
-            .rankings-table td::before {
-              content: attr(data-label);
-              font-weight: 600;
-              width: 100px;
-              min-width: 100px;
+            .rankings-table td[data-label="Spiele"]::before,
+            .rankings-table td[data-label="Siege"]::before,
+            .rankings-table td[data-label="Unent."]::before,
+            .rankings-table td[data-label="Nied."]::before,
+            .rankings-table td[data-label="Tore"]::before,
+            .rankings-table td[data-label="TD"]::before {
+              content: attr(data-label) ": ";
+              font-weight: normal;
               color: #666;
+              margin-right: 0.25rem;
+              font-size: 0.7rem;
             }
             
-            .team-cell {
-              flex: 1;
-            }
-            
-            .team-logo {
-              width: 24px;
-              height: 24px;
+            .stats-container {
+              grid-area: stats;
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.25rem;
+              margin-top: 0.5rem;
             }
           }
         </style>
       </head>
       <body>
         <div class="container">
-          <h1>Rangliste</h1>
-          <h2>${rankingData.data.title}</h2>
           <table class="rankings-table">
             <thead>
               <tr>
@@ -803,13 +879,15 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               ${cells[2].text[0]}
             </div>
           </td>
-          <td data-label="Spiele">${cells[3].text[0]}</td>
-          <td data-label="Siege">${cells[5].text[0]}</td>
-          <td data-label="Unent.">${cells[6].text[0]}</td>
-          <td data-label="Nied.">${cells[7].text[0]}</td>
-          <td data-label="Tore">${cells[8].text[0]}</td>
-          <td data-label="TD">${cells[9].text[0]}</td>
           <td data-label="Punkte">${cells[11].text[0]}</td>
+          <div class="stats-container">
+            <td data-label="Spiele">${cells[3].text[0]}</td>
+            <td data-label="Siege">${cells[5].text[0]}</td>
+            <td data-label="Unent.">${cells[6].text[0]}</td>
+            <td data-label="Nied.">${cells[7].text[0]}</td>
+            <td data-label="Tore">${cells[8].text[0]}</td>
+            <td data-label="TD">${cells[9].text[0]}</td>
+          </div>
         </tr>
       `;
     }
