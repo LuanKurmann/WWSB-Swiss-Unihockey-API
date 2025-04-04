@@ -675,7 +675,12 @@ app.get('/api/team-games/:teamId', async (req, res) => {
   try {
     const season = getCurrentSeason();
     const teamId = req.params.teamId;
-    const response = await fetch(`https://api-v2.swissunihockey.ch/api/games?mode=team&team_id=${teamId}&season=${season}`);
+    const page = parseInt(req.query.page) || 1;
+    const gamesPerPage = parseInt(req.query.games_per_page) || 10;
+    const order = req.query.order || 'date';
+    const direction = req.query.direction || 'desc';
+    
+    const response = await fetch(`https://api-v2.swissunihockey.ch/api/games?mode=team&team_id=${teamId}&season=${season}&page=${page}&games_per_page=${gamesPerPage}&order=${order}&direction=${direction}`);
     const data = await response.json();
     
     // Extract and sort games by date
@@ -1092,8 +1097,7 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               display: grid;
               grid-template-columns: auto 1fr auto;
               grid-template-areas: 
-                "rank team points"
-                "stats stats stats";
+                "rank team stats";
               gap: 0.5rem;
               margin-bottom: 0.5rem;
               padding: 0.75rem;
@@ -1118,55 +1122,30 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               grid-area: team;
             }
             
-            .rankings-table td[data-label="Punkte"] {
-              grid-area: points;
-              font-size: 1.2rem;
-              font-weight: bold;
-            }
-            
             .stats-container {
               grid-area: stats;
               display: flex;
               flex-wrap: wrap;
-              gap: 0.25rem;
-              margin-top: 0.5rem;
+              gap: 0.5rem;
+              align-items: center;
             }
             
-            .rankings-table td[data-label="Spiele"],
-            .rankings-table td[data-label="Siege"],
-            .rankings-table td[data-label="Unent."],
-            .rankings-table td[data-label="Nied."],
-            .rankings-table td[data-label="Tore"],
-            .rankings-table td[data-label="TD"] {
+            .stats-container td {
               display: inline-flex;
               align-items: center;
               font-size: 0.75rem;
-              margin-right: 0.5rem;
               background: #f8f9fa;
               padding: 0.25rem 0.5rem;
               border-radius: 4px;
               white-space: nowrap;
             }
             
-            .rankings-table td[data-label="Spiele"]::before,
-            .rankings-table td[data-label="Siege"]::before,
-            .rankings-table td[data-label="Unent."]::before,
-            .rankings-table td[data-label="Nied."]::before,
-            .rankings-table td[data-label="Tore"]::before,
-            .rankings-table td[data-label="TD"]::before {
+            .stats-container td::before {
               content: attr(data-label) ": ";
               font-weight: normal;
               color: #666;
               margin-right: 0.25rem;
               font-size: 0.7rem;
-            }
-            
-            .stats-container {
-              grid-area: stats;
-              display: flex;
-              flex-wrap: wrap;
-              gap: 0.25rem;
-              margin-top: 0.5rem;
             }
           }
         </style>
@@ -1178,13 +1157,10 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               <tr>
                 <th>Rang</th>
                 <th>Team</th>
-                <th>Spiele</th>
-                <th>S</th>
-                <th>U</th>
-                <th>N</th>
-                <th>Tore</th>
-                <th>TD</th>
-                <th>P</th>
+                ${rankingData.data.headers
+                  .slice(3) // Skip Rang, Logo, and Team columns as they're handled separately
+                  .map(header => `<th title="${header.long}">${header.text}</th>`)
+                  .join('')}
               </tr>
             </thead>
             <tbody>
@@ -1204,14 +1180,16 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               ${cells[2].text[0]}
             </div>
           </td>
-          <td data-label="Punkte">${cells[11].text[0]}</td>
           <div class="stats-container">
-            <td data-label="Spiele">${cells[3].text[0]}</td>
-            <td data-label="Siege">${cells[5].text[0]}</td>
-            <td data-label="Unent.">${cells[6].text[0]}</td>
-            <td data-label="Nied.">${cells[7].text[0]}</td>
-            <td data-label="Tore">${cells[8].text[0]}</td>
-            <td data-label="TD">${cells[9].text[0]}</td>
+            ${Object.keys(cells || {})
+              .filter(key => key !== '0' && key !== '1' && key !== '2')
+              .map((key, index) => {
+                const header = rankingData.data.headers[parseInt(key)];
+                const cellText = cells[key]?.text;
+                const displayText = Array.isArray(cellText) ? cellText[0] : (cellText || '-');
+                return `<td data-label="${header.long}" title="${header.long}">${displayText}</td>`;
+              })
+              .join('')}
           </div>
         </tr>
       `;
