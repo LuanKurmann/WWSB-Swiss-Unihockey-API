@@ -338,11 +338,8 @@ function createDarkModeRankingStyles() {
         margin-top: 0.5rem;
       }
       
+      /* Show only the most important stats on mobile */
       .rankings-table td[data-label="Spiele"],
-      .rankings-table td[data-label="Siege"],
-      .rankings-table td[data-label="Unent."],
-      .rankings-table td[data-label="Nied."],
-      .rankings-table td[data-label="Tore"],
       .rankings-table td[data-label="TD"] {
         display: inline-flex;
         align-items: center;
@@ -353,11 +350,15 @@ function createDarkModeRankingStyles() {
         color: #999;
       }
       
+      /* Hide less important stats on mobile */
+      .rankings-table td[data-label="Siege"],
+      .rankings-table td[data-label="Unent."],
+      .rankings-table td[data-label="Nied."],
+      .rankings-table td[data-label="Tore"] {
+        display: none;
+      }
+      
       .rankings-table td[data-label="Spiele"]::before,
-      .rankings-table td[data-label="Siege"]::before,
-      .rankings-table td[data-label="Unent."]::before,
-      .rankings-table td[data-label="Nied."]::before,
-      .rankings-table td[data-label="Tore"]::before,
       .rankings-table td[data-label="TD"]::before {
         content: attr(data-label) ": ";
         color: #666;
@@ -421,7 +422,6 @@ app.get('/api/spieler/:teamname', async (req, res) => {
           body {
             background-color: #ffffff;
             color: #333;
-            padding: 1rem;
           }
           
           .container {
@@ -1382,7 +1382,8 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               display: grid;
               grid-template-columns: auto 1fr auto;
               grid-template-areas: 
-                "rank team stats";
+                "rank team points"
+                "stats stats stats";
               gap: 0.5rem;
               margin-bottom: 0.5rem;
               padding: 0.75rem;
@@ -1413,9 +1414,12 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               flex-wrap: wrap;
               gap: 0.5rem;
               align-items: center;
+              margin-top: 0.5rem;
             }
             
-            .stats-container td {
+            /* Show only the most important stats on mobile */
+            .rankings-table td[data-label="Spiele"],
+            .rankings-table td[data-label="TD"] {
               display: inline-flex;
               align-items: center;
               font-size: 0.75rem;
@@ -1425,12 +1429,15 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               white-space: nowrap;
             }
             
-            .stats-container td::before {
-              content: attr(data-label) ": ";
-              font-weight: normal;
-              color: #666;
-              margin-right: 0.25rem;
-              font-size: 0.7rem;
+            /* Hide less important stats on mobile */
+            .rankings-table td[data-label="Siege"],
+            .rankings-table td[data-label="Unent."],
+            .rankings-table td[data-label="Nied."],
+            .rankings-table td[data-label="Punkte"],
+            .rankings-table td[data-label="Spiele"],
+            .rankings-table td[data-label="TD"],
+            .rankings-table td[data-label="Tore"] {
+              display: none;
             }
           }
         </style>
@@ -1465,16 +1472,14 @@ app.get('/api/team-rankings/:teamId', async (req, res) => {
               ${cells[2].text[0]}
             </div>
           </td>
+          <td data-label="Punkte">${cells[11]?.text?.[0] || '-'}</td>
           <div class="stats-container">
-            ${Object.keys(cells || {})
-              .filter(key => key !== '0' && key !== '1' && key !== '2')
-              .map((key, index) => {
-                const header = rankingData.data.headers[parseInt(key)];
-                const cellText = cells[key]?.text;
-                const displayText = Array.isArray(cellText) ? cellText[0] : (cellText || '-');
-                return `<td data-label="${header.long}" title="${header.long}">${displayText}</td>`;
-              })
-              .join('')}
+            <td data-label="Spiele">${cells[3]?.text?.[0] || '-'}</td>
+            <td data-label="Siege">${cells[5]?.text?.[0] || '-'}</td>
+            <td data-label="Unent.">${cells[6]?.text?.[0] || '-'}</td>
+            <td data-label="Nied.">${cells[7]?.text?.[0] || '-'}</td>
+            <td data-label="Tore">${cells[8]?.text?.[0] || '-'}</td>
+            <td data-label="TD">${cells[9]?.text?.[0] || '-'}</td>
           </div>
         </tr>
       `;
