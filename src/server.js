@@ -1,8 +1,18 @@
 import express from 'express';
 import cors from 'cors';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const port = 3000;
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Middleware
 app.use(cors());
@@ -361,6 +371,281 @@ function createDarkModeRankingStyles() {
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });
+});
+
+// API endpoint to get players by team name
+app.get('/api/spieler/:teamname', async (req, res) => {
+  try {
+    const teamName = req.params.teamname;
+    
+    // Define position mapping
+    const positionMap = {
+      1: 'Position nicht gewählt',
+      2: 'Stürmer*in',
+      3: 'Center*in',
+      4: 'Verteidiger*in',
+      5: 'Goali'
+    };
+    
+    // Get all players for this team
+    const { data: players, error: playersError } = await supabase
+      .from('players')
+      .select('id, first_name, last_name, position, jersey_number, birth_date')
+      .eq('team_id', teamName)
+      .order('jersey_number', { ascending: true });
+    
+    if (playersError) {
+      console.error('Error fetching players:', playersError);
+      return res.status(500).json({ 
+        error: 'Datenbankfehler', 
+        message: 'Fehler beim Abrufen der Spielerdaten.' 
+      });
+    }
+    
+    // Create HTML response with white mode design
+    let html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+          }
+          
+          body {
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 1rem;
+          }
+          
+          .container {
+            max-width: 100%;
+            margin: 0 auto;
+          }
+          
+          .team-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          }
+          
+          .team-name {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+          }
+          
+          .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+          }
+          
+          .player-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+          
+          .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          }
+          
+          .player-image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+          }
+          
+          .player-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f0f0f0;
+          }
+          
+          .player-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            color: #333;
+            text-align: center;
+          }
+          
+          .player-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #333;
+            text-align: center;
+          }
+          
+          .player-position {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+            text-align: center;
+          }
+          
+          .player-birth {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: auto;
+            text-align: center;
+          }
+          
+          .no-players {
+            text-align: center;
+            padding: 2rem;
+            background: #fff;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            color: #666;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+          
+          @media (max-width: 768px) {
+            .players-grid {
+              grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+              gap: 0.75rem;
+            }
+            
+            .player-card {
+              padding: 0.75rem;
+            }
+            
+            .player-image {
+              width: 80px;
+              height: 80px;
+            }
+            
+            .player-number {
+              font-size: 2rem;
+            }
+            
+            .player-name {
+              font-size: 1rem;
+            }
+          }
+          
+          @media (max-width: 600px) {
+            .players-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+            }
+            
+            .player-card {
+              flex-direction: row;
+              align-items: center;
+              padding: 0.5rem 1rem;
+            }
+            
+            .player-image-container {
+              display: none;
+            }
+            
+            .player-number {
+              font-size: 1.5rem;
+              margin-bottom: 0;
+              margin-right: 1rem;
+              min-width: 2rem;
+              text-align: center;
+            }
+            
+            .player-info {
+              display: flex;
+              flex: 1;
+              justify-content: space-between;
+              align-items: center;
+            }
+            
+            .player-name {
+              font-size: 0.9rem;
+              margin-bottom: 0;
+              text-align: left;
+              flex: 1;
+            }
+            
+            .player-position {
+              font-size: 0.8rem;
+              margin-bottom: 0;
+              text-align: right;
+              margin-left: 0.5rem;
+            }
+            
+            .player-birth {
+              display: none;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+    `;
+    
+    if (players && players.length > 0) {
+      html += '<div class="players-grid">';
+      
+      for (const player of players) {
+        // Format birth date if available
+        let birthDateDisplay = '';
+        if (player.birth_date) {
+          const birthDate = new Date(player.birth_date);
+          birthDateDisplay = birthDate.toLocaleDateString('de-CH');
+        }
+        
+        // Get position label from position value
+        const positionLabel = positionMap[player.position] || 'Keine Position';
+        
+        // Default player avatar
+        const playerImage = 'https://swissunihockeysa.blob.core.windows.net/memberpictures/defaultplayeravatar.png';
+        
+        html += `
+          <div class="player-card">
+            <div class="player-image-container">
+              <img src="${playerImage}" alt="${player.first_name} ${player.last_name}" class="player-image">
+            </div>
+            <div class="player-number">${player.jersey_number || '-'}</div>
+            <div class="player-info">
+              <div class="player-name">${player.first_name} ${player.last_name}</div>
+              <div class="player-position">${positionLabel}</div>
+            </div>
+            ${birthDateDisplay ? `<div class="player-birth">Geb.: ${birthDateDisplay}</div>` : ''}
+          </div>
+        `;
+      }
+      
+      html += '</div>';
+    } else {
+      html += '<div class="no-players">Keine Spieler gefunden</div>';
+    }
+    
+    html += `
+        </div>
+      </body>
+      </html>
+    `;
+    
+    res.send(html);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Server error');
+  }
 });
 
 // Swiss Unihockey API endpoint
