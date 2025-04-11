@@ -419,7 +419,7 @@ app.get('/api/spieler/:teamname', async (req, res) => {
           }
           
           body {
-            background-color: #f5f5f5;
+            background-color: #ffffff;
             color: #333;
             padding: 1rem;
           }
